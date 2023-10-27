@@ -1,0 +1,141 @@
+# Maintainer: Alexey Pavlov <alexpux@gmail.com>
+# Contributor: Ray Donnelly <mingw.android@gmail.com>
+
+_realname=gdb
+pkgbase=mingw-w64-${_realname}
+pkgname=("${MINGW_PACKAGE_PREFIX}-${_realname}")
+pkgver=11.2
+pkgrel=1
+pkgdesc="GNU Debugger (mingw-w64)"
+arch=('any')
+mingw_arch=('mingw32' 'mingw64' 'ucrt64' 'clang64' 'clang32')
+url="https://www.gnu.org/software/gdb/"
+license=('GPL')
+groups=()
+depends=("${MINGW_PACKAGE_PREFIX}-expat"
+         "${MINGW_PACKAGE_PREFIX}-libiconv"
+         "${MINGW_PACKAGE_PREFIX}-libssp"
+         "${MINGW_PACKAGE_PREFIX}-ncurses"
+         "${MINGW_PACKAGE_PREFIX}-readline"
+         "${MINGW_PACKAGE_PREFIX}-xxhash"
+         "${MINGW_PACKAGE_PREFIX}-zlib")
+optdepends=("${MINGW_PACKAGE_PREFIX}-python-pygments: for syntax highlighting")
+checkdepends=('dejagnu' 'bc')
+# gmp, mpfr and xz (lzma) are linked statically
+makedepends=("${MINGW_PACKAGE_PREFIX}-gmp"
+             "${MINGW_PACKAGE_PREFIX}-iconv"
+             "${MINGW_PACKAGE_PREFIX}-mpfr"
+             "${MINGW_PACKAGE_PREFIX}-xz"
+             "${MINGW_PACKAGE_PREFIX}-autotools"
+             "${MINGW_PACKAGE_PREFIX}-cc")
+options=('staticlibs' '!distcc' '!ccache')
+source=(https://github.com/bminor/binutils-gdb/archive/refs/tags/gdb-11.2-release.tar.gz
+        '0001-Workaround-performance-regression-in-info-func-var-t.patch'
+        '0002-Fix-using-gnu-print.patch'
+        '0005-W32-Always-check-USERPROFILE-if-HOME-is-not-set.patch'
+        '0006-Rebase-tricore-implementation-from-10.0.50-to-11.2.patch')
+validpgpkeys=('F40ADB902B24264AA42E50BF92EDB04BFF325CF3')
+sha256sums=('a47afff8c0cb54d12b2f3066ef200e1014c89e94470dea74d9aa53ee20d1d6d3'
+            '428cda7dcc107c236225ae89704390b0f1e70c276b5ca6b1741988f384b21d62'
+            'c60e867fb74f7985b5ac5337a07cc697b4a4ffe19fb6e52f7c377e29c8413a4a'
+            '39d1cb2a1be8d60c16404ad96882f10cd3ebd942d8b7af62a7416a230a50de93'
+            '16de472558542ce121b8894625a1b5cc999bafff345b4126db54fa82e117e91e')
+
+prepare() {
+  mv ${srcdir}/binutils-${_realname}-${_realname}-${pkgver}-release \
+    ${srcdir}/${_realname}-${pkgver}
+  cd ${srcdir}/${_realname}-${pkgver}
+
+  # https://sourceware.org/bugzilla/show_bug.cgi?id=15412
+  patch -p1 -i ${srcdir}/0001-Workaround-performance-regression-in-info-func-var-t.patch
+
+  patch -p1 -i ${srcdir}/0002-Fix-using-gnu-print.patch
+
+  patch -p1 -i ${srcdir}/0005-W32-Always-check-USERPROFILE-if-HOME-is-not-set.patch
+
+  patch -p1 -i ${srcdir}/0006-Rebase-tricore-implementation-from-10.0.50-to-11.2.patch
+
+  # hack! - libiberty configure tests for header files using "$CPP $CPPFLAGS"
+  sed -i "/ac_cpp=/s/\$CPPFLAGS/\$CPPFLAGS -O2/" libiberty/configure
+}
+
+do_build() {
+  builddir=${srcdir}/build-${MINGW_CHOST}
+  [[ -d ${builddir} ]] && rm -rf ${builddir}
+  mkdir ${builddir} && cd ${builddir}
+
+  if [ "${CARCH}" != "x86_64" ]; then
+    LDFLAGS+=" -Wl,--large-address-aware"
+  fi
+
+  if check_option "debug" "y"; then
+    CFLAGS+=" -O0"
+    CXXFLAGS+=" -O0"
+  fi
+
+
+  CPPFLAGS+=" -I${MINGW_PREFIX}/include/ncurses"
+  CFLAGS+=" -I${MINGW_PREFIX}/include/ncurses"
+  CXXFLAGS+=" -I${MINGW_PREFIX}/include/ncurses"
+  LDFLAGS+=" -fstack-protector"
+
+  ../${_realname}-${pkgver}/configure \
+    --build=${MINGW_CHOST} \
+    --host=${MINGW_CHOST} \
+    --target=tricore \
+    --prefix=${MINGW_PREFIX} \
+    --enable-targets=tricore \
+    --disable-werror \
+    --disable-win32-registry \
+    --disable-rpath \
+    --disable-sim \
+    --with-curses \
+    --with-system-gdbinit=${MINGW_PREFIX}/etc/gdbinit \
+    --with-system-readline \
+    --with-python=no \
+    --with-expat \
+    --with-libiconv-prefix=${MINGW_PREFIX} \
+    --with-mpfr \
+    --with-zlib \
+    --with-lzma \
+    --enable-tui \
+    --enable-source-highlight=no
+
+  make
+}
+
+build() {
+  do_build
+}
+
+package_gdb() {
+  cd ${srcdir}/build-${MINGW_CHOST}
+  make DESTDIR=${pkgdir} install
+
+  # Remove unwanted files
+  rm -rf ${pkgdir}${MINGW_PREFIX}/share/{man,info}
+
+  rm -f ${pkgdir}${MINGW_PREFIX}/include/*.h
+  rm -f ${pkgdir}${MINGW_PREFIX}/lib/*.a
+}
+
+#package_gdb-multiarch() {
+#  pkgdesc="GNU Debugger (supports all targets)"
+#  depends=("${MINGW_PACKAGE_PREFIX}-${_realname}")
+#
+#  destdir=${pkgdir}${MINGW_PREFIX}/bin
+#  mkdir -p $destdir
+#  strip -o ${destdir}/gdb-multiarch.exe ${srcdir}/build-${MINGW_CHOST}-multiarch/gdb/gdb.exe
+#  strip -o ${destdir}/gdbserver-multiarch.exe ${srcdir}/build-${MINGW_CHOST}-multiarch/gdbserver/gdbserver.exe
+#}
+
+# template start; name=mingw-w64-splitpkg-wrappers; version=1.0;
+# vim: set ft=bash :
+
+# generate wrappers
+for _name in "${pkgname[@]}"; do
+  _short="package_${_name#${MINGW_PACKAGE_PREFIX}-}"
+  _func="$(declare -f "${_short}")"
+  eval "${_func/#${_short}/package_${_name}}"
+done
+# template end;
