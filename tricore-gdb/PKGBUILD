@@ -74,8 +74,8 @@ do_build() {
 
 
   CPPFLAGS+=" -I${MINGW_PREFIX}/include/ncurses"
-  CFLAGS+=" -I${MINGW_PREFIX}/include/ncurses"
-  CXXFLAGS+=" -I${MINGW_PREFIX}/include/ncurses"
+  CFLAGS+=" -I${MINGW_PREFIX}/include/ncurses -fpermissive"
+  CXXFLAGS+=" -I${MINGW_PREFIX}/include/ncurses -fpermissive"
   LDFLAGS+=" -fstack-protector"
 
   ../${_realname}-${pkgver}/configure \
