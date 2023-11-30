@@ -1,3 +1,4 @@
 tricore-gdb/pkg
 tricore-gdb/src
 **/*.tar.gz
+**/*.tar.zst
