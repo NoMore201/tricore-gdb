@@ -16,8 +16,8 @@ jobs:
 
       - name: Install dependencies
         run: |
-          apt-get update
-          apt-get -y install zip
+          sudo apt-get update
+          sudo apt-get -y install zip
       
       - name: Extract git tag
         shell: bash
