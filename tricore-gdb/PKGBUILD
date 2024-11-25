@@ -32,13 +32,15 @@ source=(https://github.com/bminor/binutils-gdb/archive/refs/tags/gdb-11.2-releas
         '0001-Workaround-performance-regression-in-info-func-var-t.patch'
         '0002-Fix-using-gnu-print.patch'
         '0005-W32-Always-check-USERPROFILE-if-HOME-is-not-set.patch'
-        '0006-Rebase-tricore-implementation-from-10.0.50-to-11.2.patch')
+        '0006-Rebase-tricore-implementation-from-10.0.50-to-11.2.patch'
+        '0007-Tricore_fix_duplicate_reg.patch')
 validpgpkeys=('F40ADB902B24264AA42E50BF92EDB04BFF325CF3')
 sha256sums=('a47afff8c0cb54d12b2f3066ef200e1014c89e94470dea74d9aa53ee20d1d6d3'
             '428cda7dcc107c236225ae89704390b0f1e70c276b5ca6b1741988f384b21d62'
             'c60e867fb74f7985b5ac5337a07cc697b4a4ffe19fb6e52f7c377e29c8413a4a'
             '39d1cb2a1be8d60c16404ad96882f10cd3ebd942d8b7af62a7416a230a50de93'
-            '16de472558542ce121b8894625a1b5cc999bafff345b4126db54fa82e117e91e')
+            '16de472558542ce121b8894625a1b5cc999bafff345b4126db54fa82e117e91e'
+            'c31353ffdad66dc3c3b78ecf214c2659b7bb922bf3b38a165eaa701f975c08bf')
 
 prepare() {
   mv ${srcdir}/binutils-${_realname}-${_realname}-${pkgver}-release \
@@ -53,6 +55,8 @@ prepare() {
   patch -p1 -i ${srcdir}/0005-W32-Always-check-USERPROFILE-if-HOME-is-not-set.patch
 
   patch -p1 -i ${srcdir}/0006-Rebase-tricore-implementation-from-10.0.50-to-11.2.patch
+
+  patch -p1 -i ${srcdir}/0007-Tricore_fix_duplicate_reg.patch
 
   # hack! - libiberty configure tests for header files using "$CPP $CPPFLAGS"
   sed -i "/ac_cpp=/s/\$CPPFLAGS/\$CPPFLAGS -O2/" libiberty/configure

@@ -1,0 +1,15 @@
+Without this patch gdb complains 'Could not fetch register "lcx"; remote failure reply 'E14''
+on 'info registers' command
+
+Perhaps there is some inconsistency in tricore.c and tricore.xml, need more investigations here
+
+--- a/gdb/features/tricore.c
++++ b/gdb/features/tricore.c
+@@ -59,7 +59,6 @@
+   tdesc_create_reg (feature, "syscon", 41, 1, NULL, 32, "int");
+   tdesc_create_reg (feature, "pmucon0", 42, 1, NULL, 32, "int");
+   tdesc_create_reg (feature, "dmucon", 43, 1, NULL, 32, "int");
+-  tdesc_create_reg (feature, "lcx", 44, 1, NULL, 32, "int");
+   
+   tdesc_tricore = result.release ();
+ }
