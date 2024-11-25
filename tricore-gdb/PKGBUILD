@@ -80,7 +80,7 @@ do_build() {
   CPPFLAGS+=" -I${MINGW_PREFIX}/include/ncurses"
   CFLAGS+=" -I${MINGW_PREFIX}/include/ncurses -fpermissive"
   CXXFLAGS+=" -I${MINGW_PREFIX}/include/ncurses -fpermissive"
-  LDFLAGS+=" -fstack-protector -static"
+  LDFLAGS+=" -fstack-protector"
 
   ../${_realname}-${pkgver}/configure \
     --build=${MINGW_CHOST} \
@@ -101,6 +101,7 @@ do_build() {
     --with-mpfr \
     --with-zlib \
     --with-lzma \
+    --with-static-standard-libraries \
     --enable-tui \
     --enable-source-highlight=no
 
