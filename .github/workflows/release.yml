@@ -22,7 +22,6 @@ jobs:
       - name: Download artifacts from latest workflow
         uses: dawidd6/action-download-artifact@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
           workflow: build.yml
           branch: ${{ github.event.release.target_commitish }}
           workflow_conclusion: success
