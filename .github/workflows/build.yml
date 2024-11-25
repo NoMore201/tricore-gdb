@@ -17,6 +17,10 @@ jobs:
         shell: msys2 {0}
 
     steps:
+      - name: Setup
+        run: |
+          git config --global core.autocrlf false
+      
       - name: Checkout
         uses: actions/checkout@v4
 
@@ -43,8 +47,8 @@ jobs:
         run: |
           cd tricore-gdb
           # Remove CR characters in source files
-          sed -i 's/\r$//' PKGBUILD
-          for file in $(ls *.patch); do sed -i 's/\r$//' $FILE; done
+          # sed -i 's/\r$//' PKGBUILD
+          # for file in $(ls *.patch); do sed -i 's/\r$//' $FILE; done
           MINGW_ARCH=ucrt64 makepkg-mingw -C
       
       - name: Upload artifacts
