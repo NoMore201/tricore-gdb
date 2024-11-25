@@ -42,6 +42,8 @@ jobs:
       - name: Build
         run: |
           cd tricore-gdb
+          dos2unix PKGBUILD
+          dos2unix *.patch
           MINGW_ARCH=ucrt64 makepkg-mingw -C
       
       - name: Upload artifacts
