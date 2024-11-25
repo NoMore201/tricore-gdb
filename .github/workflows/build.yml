@@ -44,6 +44,12 @@ jobs:
           dos2unix PKGBUILD
           dos2unix *.patch
           MINGW_ARCH=ucrt64 makepkg-mingw -C
+          cp /ucrt64/bin/libreadline*.dll pkg/mingw-w64-ucrt-x86_64-gdb/ucrt64/bin/
+          cp /ucrt64/bin/libncursesw6*.dll pkg/mingw-w64-ucrt-x86_64-gdb/ucrt64/bin/
+          cp /ucrt64/bin/libwinpthread*.dll pkg/mingw-w64-ucrt-x86_64-gdb/ucrt64/bin/
+          cp /ucrt64/bin/libintl*.dll pkg/mingw-w64-ucrt-x86_64-gdb/ucrt64/bin/
+          cp /ucrt64/bin/libiconv*.dll pkg/mingw-w64-ucrt-x86_64-gdb/ucrt64/bin/
+          cp /ucrt64/bin/libtermcap*.dll pkg/mingw-w64-ucrt-x86_64-gdb/ucrt64/bin/
       
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
