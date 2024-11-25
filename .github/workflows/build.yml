@@ -1,0 +1,52 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - 'main'
+      - 'github-actions'
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: GDB build
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: msys2 {0}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - uses: msys2/setup-msys2@v2
+        with:
+          msystem: UCRT64
+          update: true
+          install: |
+            git base-devel
+            mingw-w64-ucrt-x86_64-toolchain
+            mingw-w64-ucrt-x86_64-expat
+            mingw-w64-ucrt-x86_64-libiconv
+            mingw-w64-ucrt-x86_64-ncurses
+            mingw-w64-ucrt-x86_64-readline
+            mingw-w64-ucrt-x86_64-xxhash
+            mingw-w64-ucrt-x86_64-zlib
+            mingw-w64-ucrt-x86_64-gmp
+            mingw-w64-ucrt-x86_64-iconv
+            mingw-w64-ucrt-x86_64-mpfr
+            mingw-w64-ucrt-x86_64-xz
+            mingw-w64-ucrt-x86_64-autotools
+
+      - name: Build
+        run: |
+          cd tricore-gdb
+          MINGW_ARCH=ucrt64 makepkg-mingw -C
+      
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          if-no-files-found: error
+          name: tricore-gdb
+          path: tricore-gdb/pkg/*
