@@ -101,6 +101,7 @@ do_build() {
     --with-mpfr \
     --with-zlib \
     --with-lzma \
+    --with-static-standard-libraries \
     --enable-tui \
     --enable-source-highlight=no
 
