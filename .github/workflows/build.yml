@@ -42,8 +42,9 @@ jobs:
       - name: Build
         run: |
           cd tricore-gdb
-          # Fix for CRLF characters in PKGBUILD
+          # Remove CR characters in source files
           sed -i 's/\r$//' PKGBUILD
+          for file in $(ls *.patch); do sed -i 's/\r$//' $FILE; done
           MINGW_ARCH=ucrt64 makepkg-mingw -C
       
       - name: Upload artifacts
