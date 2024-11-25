@@ -80,7 +80,7 @@ do_build() {
   CPPFLAGS+=" -I${MINGW_PREFIX}/include/ncurses"
   CFLAGS+=" -I${MINGW_PREFIX}/include/ncurses -fpermissive"
   CXXFLAGS+=" -I${MINGW_PREFIX}/include/ncurses -fpermissive"
-  LDFLAGS+=" -fstack-protector"
+  LDFLAGS+=" -fstack-protector -static"
 
   ../${_realname}-${pkgver}/configure \
     --build=${MINGW_CHOST} \

@@ -51,4 +51,4 @@ jobs:
         with:
           if-no-files-found: error
           name: tricore-gdb
-          path: tricore-gdb/pkg/*
+          path: tricore-gdb/pkg/mingw-w64-ucrt-x86_64-gdb/ucrt64/*
